@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Vue -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <!-- Bootstrap css -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+  <!-- css -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <title>ToDoList</title>
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <div class="d-flex justify-content-between align-items-center text-white h-100 ps-5 pe-5">
+        <div class="d-flex align-items-center">
+          <i class="fs-2 me-2" :class="logo"></i>
+          <h1 class="fw-bold fs-2 mb-0">{{title}}</h1>
+        </div>
+        <div
+          @click=""
+          class="add-task d-flex align-items-center rounded-4 px-3 py-2"
+          data-bs-toggle="modal"
+          data-bs-target="#add-task-modal">
+          <h5 class="mb-0">Add a Task</h5>
+          <i class="fa-solid fa-square-plus fs-3 ms-3"></i>
+        </div>
+      </div>
+
+      <div class="modal fade" id="add-task-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header add-modal-header">
+              <h1 class="modal-title fs-5 fw-bold text-white" id="exampleModalLabel">Add a Task</h1>
+              <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-body-tertiary">
+              <input
+                v-model="newTaskText"
+                @keyup.enter="addTask"
+                placeholder="New Task"
+                class="input-new-task rounded ps-2 mb-3 w-100"
+                type="text">
+
+              <div class="d-flex align-items-center fw-bold text-body-secondary">
+                <span class="me-3">Category</span>
+                <select v-model="newTaskCategory" class="form-select me-5" aria-label="Default select example">
+                  <option v-for="category in categories" :value="category.name">{{category.name}}</option>
+                </select>
+                
+                <span class="me-3">Priority</span>
+                <select v-model="newTaskPriority" class="form-select" aria-label="Default select example">
+                  <option :value="1">1</option>
+                  <option :value="2">2</option>
+                  <option :value="3">3</option>
+                </select>
+              </div>
+
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+              <div class="error-message">
+                <span class="fs-6">{{addErrorMsg}}</span>
+              </div>
+              <button @click="addTask" type="button" class="btn-add-task btn text-white">Add Task</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="main-wrapper d-flex">
+
+        <div class="sidebar bg-body-tertiary h-100 p-4">
+          <ul class="categories-list list-unstyled">
+            <li
+              @click="currCategory = index; categoryFilter();"
+              v-for="(category,index) in categories"
+              class="d-flex justify-content-between align-items-center rounded-4 fw-bold px-3 py-2 mb-2">
+              <div class="d-flex align-items-center text-body-secondary">
+                <i class="fs-6 me-3 fa-solid" :class="category.icon"></i>
+                <span class="fs-5 me-2">{{category.name}}</span>
+              </div>
+              <span class="fs-6 text-body-tertiary">{{category.numTasks}}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="main-content p-5 ms-4 w-100 overflow-y-auto">
+
+          <div class="tasks-header d-flex justify-content-between fw-bold mx-5 mb-4">
+            <div class="text-body-secondary">
+              <i class="fs-4 me-2 fa-solid" :class="categories[currCategory].icon"></i>
+              <span class="fs-3">{{categories[currCategory].name}}</span>
+            </div>
+            <div class="error-message">
+              <span class="fs-5">{{deleteErrorMsg}}</span>
+            </div>
+            <div @click="" class="delete-checked text-white rounded-4 px-3 py-2">
+              <span class="me-2">Delete checked</span>
+              <i class="fa-solid fa-trash"></i>
+            </div>
+          </div>
+
+          <div class="tasks-container bg-body-tertiary rounded-4 px-5 py-4 w-100">
+
+            <div v-if="tasksFiltered.length === 0" class="d-flex align-items-center">
+              <span class="fs-5 fw-bold text-body-secondary me-2">Non ci sono tasks!</span>
+              <i class="fs-3 emoji fa-solid fa-face-laugh-wink"></i>
+            </div>
+
+            <ul v-else class="tasks-list list-unstyled mb-0">
+
+              <li
+                v-for="(task,index) in tasksFiltered"
+                class="d-flex justify-content-between align-items-center fw-bold text-body-secondary border-bottom pb-3 mb-3">
+
+                <div class="task-left d-flex align-items-center">
+                  <div
+                    @click="task.done = !task.done"
+                    class="check me-3 d-flex justify-content-center align-items-center">
+                    <i v-if="task.done" class="fa-solid fa-check"></i>
+                  </div>
+                  <span :class="{'done' : task.done}">{{task.text}}</span>
+                </div>
+
+                <div class="task-right d-flex align-items-center">
+                  <div class="gp-badge me-4">
+                    <i class="me-2 fa-solid" :class="setBadgeIcon(index)"></i>
+                    <span>{{task.category}}</span>
+                  </div>
+
+                  <div class="gp-badge me-4" :class="setBadgeColor(index)">
+                    <i class="fa-solid fa-flag me-1"></i>
+                    <span>{{task.priority}}</span>
+                  </div>
+
+                  <i @click="indexToDelete = task.id, deleteTask()" class="delete fs-5 fa-solid fa-trash"></i>
+                </div>
+
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Bootstrap js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+  <!-- js -->
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

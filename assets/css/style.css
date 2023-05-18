@@ -1,0 +1,139 @@
+/* General */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --myorange : rgb(215, 115, 65);
+  --myred: rgb(215, 65, 65);
+  --myyellow: rgb(244, 228, 84);
+  --mygreen : rgb(96, 195, 96);
+  --mouseover : rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.done {
+  text-decoration: line-through;
+}
+
+.gp-badge {
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: white;
+  background-color: var(--myorange);
+}
+
+.gp-badge-red {
+  background-color: var(--myred);
+}
+
+.gp-badge-yellow {
+  background-color: var(--myyellow);
+}
+
+.gp-badge-green {
+  background-color: var(--mygreen);
+}
+
+
+/* Header */
+header {
+  background-color: var(--myorange);
+  height: 80px;
+}
+
+header .add-task:hover {
+  background-color: var(--mouseover);
+  cursor: pointer;
+}
+
+.add-modal-header {
+  background-color: var(--myorange);
+}
+
+.input-new-task {
+  border: 1px solid rgb(220, 220, 220);
+  height: 40px;
+}
+
+.input-new-task:focus {
+  outline: 1px solid var(--myorange) !important;
+}
+
+.form-select:focus {
+  border : 1px solid var(--myorange) !important;
+  box-shadow: none !important;
+}
+
+.btn-add-task {
+  background-color: var(--myorange);
+  border : 0;
+}
+
+.btn-add-task:hover {
+  background-color: var(--myorange);
+  transform: scale(1.05);
+}
+
+
+/* Main */
+.main-wrapper {
+  height: calc(100vh - 80px);
+}
+
+/* sidebar */
+.sidebar {
+  width: 16%;
+  min-width: 220px;
+}
+
+.categories-list li:hover {
+  background-color: var(--mouseover);
+  cursor: pointer;
+}
+
+/* main content */
+.main-content {
+  scroll-behavior: smooth !important;
+}
+
+.error-message {
+  color : var(--myred);
+}
+
+.delete-checked {
+  background-color: var(--myred);
+}
+
+.delete-checked:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+.emoji {
+  color : var(--myyellow);
+}
+
+.check {
+  background-color: rgb(215, 175, 155);
+  border: 2px solid var(--myorange);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+}
+
+.check:hover {
+  cursor: pointer;
+}
+
+.delete:hover {
+  cursor: pointer;
+  color : var(--myred);
+  transform: scale(1.05);
+}
