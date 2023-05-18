@@ -1,13 +1,10 @@
 const { createApp } = Vue;
-import {categories,tasks} from "./db.js";
 
 createApp({
   data() {
     return {
       logo  : "fa-solid fa-check-double",
       title : "ToDoList",
-      categories,
-      tasks,
       currCategory : 0,
       tasksFiltered : [],
       tasksFilteredCounter : [],
@@ -19,11 +16,26 @@ createApp({
       newTaskText : "",
       newTaskCategory : "",
       newTaskPriority : 0,
-      idCounter : 13,
+      idCounter : 12,
+      
+      isLoading : true,
+      categories : [],
+      tasks : [],
+      apiUrl : "server.php"
     }
   },
 
   methods : {
+    readLists() {
+      this.isLoading = true,
+      axios.get(this.apiUrl)
+      .then(res => {
+        this.categories = res.data[0];
+        this.tasks = res.data[1];
+        this.isLoading = false;
+      })
+    },
+
     categoryFilter() {
       if(this.categories[this.currCategory].name !== "Generale") {
         this.tasksFiltered = this.tasks.filter( task => task.category === this.categories[this.currCategory].name);
@@ -174,8 +186,12 @@ createApp({
   },
 
   mounted(){
-    this.prioritySort();
-    this.categoryFilter();
-    this.tasksCounter();
+    this.readLists();
+    
+    setTimeout( () => {
+      this.prioritySort();
+      this.categoryFilter();
+      this.tasksCounter();
+    }, 10)
   }
 }).mount("#app")

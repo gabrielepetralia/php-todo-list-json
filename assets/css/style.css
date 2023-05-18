@@ -93,6 +93,7 @@ header .add-task:hover {
   min-width: 220px;
 }
 
+.curr-category,
 .categories-list li:hover {
   background-color: var(--mouseover);
   cursor: pointer;

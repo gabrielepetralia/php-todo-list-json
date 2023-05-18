@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
-    crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Axios -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js" integrity="sha512-uMtXmF28A2Ab/JJO2t/vYhlaa/3ahUOgj1Zf27M5rOo8/+fcTUVH0/E0ll68njmjrLqOBjXM3V9NiPFL5ywWPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
   <!-- Vue -->
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
   <!-- Bootstrap css -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
 
   <!-- css -->
   <link rel="stylesheet" href="assets/css/style.css">
@@ -26,16 +27,12 @@
 <body>
   <div id="app">
     <header>
-      <div class="d-flex justify-content-between align-items-center text-white h-100 ps-5 pe-5">
+      <div class="d-flex justify-content-between align-items-center text-white h-100 px-4">
         <div class="d-flex align-items-center">
           <i class="fs-2 me-2" :class="logo"></i>
           <h1 class="fw-bold fs-2 mb-0">{{title}}</h1>
         </div>
-        <div
-          @click=""
-          class="add-task d-flex align-items-center rounded-4 px-3 py-2"
-          data-bs-toggle="modal"
-          data-bs-target="#add-task-modal">
+        <div @click="" class="add-task d-flex align-items-center rounded-4 px-3 py-2" data-bs-toggle="modal" data-bs-target="#add-task-modal">
           <h5 class="mb-0">Add a Task</h5>
           <i class="fa-solid fa-square-plus fs-3 ms-3"></i>
         </div>
@@ -49,19 +46,14 @@
               <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body bg-body-tertiary">
-              <input
-                v-model="newTaskText"
-                @keyup.enter="addTask"
-                placeholder="New Task"
-                class="input-new-task rounded ps-2 mb-3 w-100"
-                type="text">
+              <input v-model="newTaskText" @keyup.enter="addTask" placeholder="New Task" class="input-new-task rounded ps-2 mb-3 w-100" type="text">
 
               <div class="d-flex align-items-center fw-bold text-body-secondary">
                 <span class="me-3">Category</span>
                 <select v-model="newTaskCategory" class="form-select me-5" aria-label="Default select example">
                   <option v-for="category in categories" :value="category.name">{{category.name}}</option>
                 </select>
-                
+
                 <span class="me-3">Priority</span>
                 <select v-model="newTaskPriority" class="form-select" aria-label="Default select example">
                   <option :value="1">1</option>
@@ -82,7 +74,8 @@
       </div>
     </header>
 
-    <main>
+    <span v-if="isLoading"></span>
+    <main v-else>
       <div class="main-wrapper d-flex">
 
         <div class="sidebar bg-body-tertiary h-100 p-4">
@@ -90,7 +83,8 @@
             <li
               @click="currCategory = index; categoryFilter();"
               v-for="(category,index) in categories"
-              class="d-flex justify-content-between align-items-center rounded-4 fw-bold px-3 py-2 mb-2">
+              class="d-flex justify-content-between align-items-center rounded-4 fw-bold px-3 py-2 mb-2"
+              :class="{'curr-category': index === currCategory}">
               <div class="d-flex align-items-center text-body-secondary">
                 <i class="fs-6 me-3 fa-solid" :class="category.icon"></i>
                 <span class="fs-5 me-2">{{category.name}}</span>
@@ -125,14 +119,10 @@
 
             <ul v-else class="tasks-list list-unstyled mb-0">
 
-              <li
-                v-for="(task,index) in tasksFiltered"
-                class="d-flex justify-content-between align-items-center fw-bold text-body-secondary border-bottom pb-3 mb-3">
+              <li v-for="(task,index) in tasksFiltered" class="d-flex justify-content-between align-items-center fw-bold text-body-secondary border-bottom pb-3 mb-3">
 
                 <div class="task-left d-flex align-items-center">
-                  <div
-                    @click="task.done = !task.done"
-                    class="check me-3 d-flex justify-content-center align-items-center">
+                  <div @click="task.done = !task.done" class="check me-3 d-flex justify-content-center align-items-center">
                     <i v-if="task.done" class="fa-solid fa-check"></i>
                   </div>
                   <span :class="{'done' : task.done}">{{task.text}}</span>
@@ -156,6 +146,12 @@
             </ul>
           </div>
 
+          <ul>
+            <li v-for="(t, index) in test">
+              <span>{{ t.name }}</span>
+            </li>
+          </ul>
+
         </div>
 
       </div>
@@ -163,10 +159,10 @@
   </div>
 
   <!-- Bootstrap js -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
 
   <!-- js -->
   <script type="module" src="assets/js/main.js"></script>
 </body>
+
 </html>
