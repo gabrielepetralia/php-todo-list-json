@@ -1,0 +1,42 @@
+[
+  {
+    "icon" : "fa-globe",
+    "name" : "Generale",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-house",
+    "name" : "Casa",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-briefcase",
+    "name" : "Lavoro",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-book",
+    "name" : "Studio",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-football",
+    "name" : "Sport",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-music",
+    "name" : "Musica",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-cart-shopping",
+    "name" : "Spesa",
+    "numTasks" : 0
+  },
+  {
+    "icon" : "fa-pills",
+    "name" : "Salute",
+    "numTasks" : 0
+  }
+]

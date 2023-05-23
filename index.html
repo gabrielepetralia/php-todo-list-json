@@ -74,14 +74,14 @@
       </div>
     </header>
 
-    <span v-if="isLoading"></span>
-    <main v-else>
+    
+    <main>
       <div class="main-wrapper d-flex">
 
         <div class="sidebar bg-body-tertiary h-100 p-4">
-          <ul class="categories-list list-unstyled">
+          <ul class="categories-list list-unstyled" v-if="categories.length">
             <li
-              @click="currCategory = index; categoryFilter();"
+              @click="currCategory = index; categoryFilter()"
               v-for="(category,index) in categories"
               class="d-flex justify-content-between align-items-center rounded-4 fw-bold px-3 py-2 mb-2"
               :class="{'curr-category': index === currCategory}">
@@ -145,12 +145,6 @@
               </li>
             </ul>
           </div>
-
-          <ul>
-            <li v-for="(t, index) in test">
-              <span>{{ t.name }}</span>
-            </li>
-          </ul>
 
         </div>
 

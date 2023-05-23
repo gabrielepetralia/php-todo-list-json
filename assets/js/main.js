@@ -19,21 +19,123 @@ createApp({
       idCounter : 12,
       
       isLoading : true,
-      categories : [],
+      categories : [
+        {
+          "icon" : "fa-globe",
+          "name" : "Generale",
+          "numTasks" : 0
+        }
+      ],
       tasks : [],
-      apiUrl : "server.php"
+      categoriesApiUrl : "server_categories.php",
+      tasksApiUrl : "server_tasks.php"
     }
   },
 
   methods : {
-    readLists() {
-      this.isLoading = true,
-      axios.get(this.apiUrl)
+    readCategories() {
+      this.isLoading = true;
+      axios.get(this.categoriesApiUrl)
       .then(res => {
-        this.categories = res.data[0];
-        this.tasks = res.data[1];
+        this.categories = res.data;
         this.isLoading = false;
+        this.prioritySort();
+        this.categoryFilter();
+        this.tasksCounter();
       })
+    },
+
+    readTasks() {
+      this.isLoading = true;
+      axios.get(this.tasksApiUrl)
+      .then(res => {
+        this.tasks = res.data;
+        this.isLoading = false;
+        this.prioritySort();
+        this.categoryFilter();
+        this.tasksCounter();
+      })
+    },
+
+    addTask() {
+      if(this.newTaskText.length > 4) {
+        if(this.newTaskText !== "" && this.newTaskCategory !== "" && this.newTaskPriority !== 0) {
+          this.idCounter++;
+          // const newTask = {
+          //   id : this.idCounter,
+          //   text : this.newTaskText,
+          //   done : false,
+          //   category : this.newTaskCategory,
+          //   priority : this.newTaskPriority,
+          // }
+          // this.tasks.unshift(newTask);
+
+          // Invio al server
+          const data = new FormData();
+
+          data.append("taskID", this.idCounter);
+          data.append("taskText", this.newTaskText);
+          data.append("taskCategory", this.newTaskCategory);
+          data.append("taskPriority", this.newTaskPriority);
+
+          axios.post(this.tasksApiUrl, data)
+          .then(res => {
+            this.tasks = res.data;
+            console.log(this.tasks);
+              this.prioritySort();
+              this.categoryFilter();
+              this.tasksCounter();
+          })
+
+          this.newTaskText = "";
+          this.newTaskCategory = "";
+          this.newTaskPriority = 0;
+        } else {
+          this.writeErrorMsg("add","Devi compilare tutti i campi!")
+        }
+      } else {
+        this.writeErrorMsg("add","Il testo deve essere di almeno 5 caratteri!")
+      }
+    },
+
+    deleteTask() {
+      this.tasks.forEach( (task,index) => {
+        if(task.id === (this.indexToDelete)) {
+          if(task.done) {
+            this.tasks.splice(index,1);
+            this.categoryFilter();
+            this.tasksCounter();
+            this.deleteErrorMsg = "";
+          } else {
+            this.goUp();
+            this.writeErrorMsg("delete","Non puoi eliminare una task senza averla fatta!");
+          }
+        }
+      })
+    },
+
+    goUp() {
+      document.querySelector(".main-content").scrollTop = 0;
+    },
+
+    writeErrorMsg(errorType,msg) {
+      if(errorType === "delete") {
+        this.deleteErrorMsg = msg;
+        setTimeout(() => {
+          this.deleteErrorMsg = "";
+        },2000)
+      }
+
+      if(errorType === "add") {
+        this.addErrorMsg = msg;
+        setTimeout(() => {
+          this.addErrorMsg = "";
+        },2000)
+      }
+    },
+
+    prioritySort() {
+      this.tasks.sort((a,b) => a.priority - b.priority);
     },
 
     categoryFilter() {
@@ -58,58 +160,6 @@ createApp({
       })
     },
 
-    writeErrorMsg(errorType,msg) {
-      if(errorType === "delete") {
-        this.deleteErrorMsg = msg;
-        setTimeout(() => {
-          this.deleteErrorMsg = "";
-        },2000)
-      }
-
-      if(errorType === "add") {
-        this.addErrorMsg = msg;
-        setTimeout(() => {
-          this.addErrorMsg = "";
-        },2000)
-      }
-    },
-
-    goUp() {
-      document.querySelector(".main-content").scrollTop = 0;
-    },
-
-    deleteTask() {
-      this.tasks.forEach( (task,index) => {
-        if(task.id === (this.indexToDelete)) {
-          if(task.done) {
-            this.tasks.splice(index,1);
-            this.categoryFilter();
-            this.tasksCounter();
-            this.deleteErrorMsg = "";
-          } else {
-            this.goUp();
-            this.writeErrorMsg("delete","Non puoi eliminare una task senza averla fatta!");
-          }
-        }
-      })
-    },
-
-    // NON FUNZIONA
-    // deleteCheckedTasks() {
-    //   this.tasks.forEach( (task,index) => {
-    //     if(task.done) {
-    //       this.tasks.splice(index,1);
-    //     }
-    //   })
-    //   this.categoryFilter();
-    //   this.tasksCounter();
-    //   console.log(this.tasks);
-    // },
-
-    prioritySort() {
-      this.tasks.sort((a,b) => a.priority - b.priority);
-    },
-
     setBadgeColor(index) {
       switch (this.tasksFiltered[index].priority) {
         case 1:
@@ -118,7 +168,7 @@ createApp({
         case 2:
           this.badgeColor = "gp-badge-yellow";
           break;  
-        default:
+        case 3:
           this.badgeColor = "gp-badge-green";
           break;
       }
@@ -126,7 +176,7 @@ createApp({
       return this.badgeColor;
     },
 
-    setBadgeIcon (index) {
+    setBadgeIcon(index) {
       switch (this.tasksFiltered[index].category) {
         case this.categories[0].name :
           this.badgeIcon = this.categories[0].icon;
@@ -155,43 +205,11 @@ createApp({
       }
 
       return this.badgeIcon;
-    },
-
-    addTask() {
-      if(this.newTaskText.length > 4) {
-        if(this.newTaskText !== "" && this.newTaskCategory !== "" && this.newTaskPriority !== 0) {
-          this.idCounter++;
-          const newTask = {
-            id : this.idCounter,
-            text : this.newTaskText,
-            done : false,
-            category : this.newTaskCategory,
-            priority : this.newTaskPriority,
-          }
-
-          this.tasks.unshift(newTask);
-          this.prioritySort();
-          this.categoryFilter();
-          this.tasksCounter();
-          this.newTaskText = "";
-          this.newTaskCategory = "";
-          this.newTaskPriority = 0;
-        } else {
-          this.writeErrorMsg("add","Devi compilare tutti i campi!")
-        }
-      } else {
-        this.writeErrorMsg("add","Il testo deve essere di almeno 5 caratteri!")
-      }
     }
   },
 
-  mounted(){
-    this.readLists();
-    
-    setTimeout( () => {
-      this.prioritySort();
-      this.categoryFilter();
-      this.tasksCounter();
-    }, 10)
+  mounted() {
+    this.readCategories();
+    this.readTasks();
   }
 }).mount("#app")
